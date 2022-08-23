@@ -11,11 +11,11 @@ let position = [
 ]
 
 position = [
-    '- - - O O O - - -',
-    '- - - O O O - - -',
-    '- - - @ @ O - - -',
-    'O O O @ @ O O O O',
-    'O O O @ O O O O O',
+    '- - - @ @ @ - - -',
+    '- - - @ @ @ - - -',
+    '- - - @ @ @ - - -',
+    'O O O @ @ @ O O O',
+    'O O O @ O @ O O O',
     'O O O O O O O O O',
     '- - - O O O - - -',
     '- - - O O O - - -',
@@ -34,19 +34,22 @@ let winningPosition = [
     '- - - O O O - - -',
 ]
 
-let gamesNumber = 1000
+let gamesNumber = 10000
 let gamesPlayed = 0
+
 let possibleMoves = []
-let posArr = []
-let fewestPins = 100
-let bestGame = []
 let path = []
 
-const toPosArr = (pos) => {
-    for (let i = 0; i < pos.length; i++) {
-        posArr[i] = pos[i].split(' ')
-    }
-}
+let fewestPins = 100
+let bestGame = []
+
+let posStr = position.join(' ').split(' ').join('')
+let winStr = winningPosition.join(' ').split(' ').join('')
+
+let rows = position.length
+let cols = posStr.length / rows
+
+
 const fromPosArr = (arr) => {
     let pos = []
     for (let i = 0; i < arr.length; i++) {
@@ -55,81 +58,12 @@ const fromPosArr = (arr) => {
     return pos
 }
 
-const findMoves = () => {
-
-    // reset possible moves array
-    possibleMoves = []
-
-    for (let i = 0; i < posArr.length; i++) {
-        for (let j = 0; j < posArr[i].length; j++) {
-
-            if (posArr[i][j] == '-') continue
-
-            // check for moves going right
-            if (j < posArr[i].length - 2) {
-                if (posArr[i][j] == '@' && posArr[i][j + 1] == '@' && posArr[i][j + 2] == 'O') {
-                    possibleMoves.push(['r', i, j])
-                }
-            }
-
-            // check for moves going left
-            if (j > 2) {
-                if (posArr[i][j] == '@' && posArr[i][j - 1] == '@' && posArr[i][j - 2] == 'O') {
-                    possibleMoves.push(['l', i, j])
-                }
-            }
-
-            // check for moves going down
-            if (i < posArr.length - 2) {
-                if (posArr[i][j] == '@' && posArr[i + 1][j] == '@' && posArr[i + 2][j] == 'O') {
-                    possibleMoves.push(['d', i, j])
-                }
-            }
-
-            // check for moves going up
-            if (i > 2) {
-                if (posArr[i][j] == '@' && posArr[i - 1][j] == '@' && posArr[i - 2][j] == 'O') {
-                    possibleMoves.push(['u', i, j])
-                }
-            }
-        }
-    }
-}
-
-const makeMove = (arr) => {
-
-    // direction, x-value, y-value
-    let d = arr[0]
-    let x = arr[1]
-    let y = arr[2]
-
-    switch (d) {
-        case 'r':
-            posArr[x][y] = 'O'
-            posArr[x][y + 1] = 'O'
-            posArr[x][y + 2] = '@'
-            break
-        case 'l':
-            posArr[x][y] = 'O'
-            posArr[x][y - 1] = 'O'
-            posArr[x][y - 2] = '@'
-            break
-        case 'd':
-            posArr[x][y] = 'O'
-            posArr[x + 1][y] = 'O'
-            posArr[x + 2][y] = '@'
-            break
-        case 'u':
-            posArr[x][y] = 'O'
-            posArr[x - 1][y] = 'O'
-            posArr[x - 2][y] = '@'
-            break
-    }
-}
-
 const game = () => {
 
-    toPosArr(position)
+    posStr = position.join(' ').split(' ').join('')
+    winStr = winningPosition.join(' ').split(' ').join('')
+
+
     findMoves()
 
     for (let i = 0; i < path.length; i++) {
@@ -150,7 +84,7 @@ const game = () => {
         // if none, break while loop
         if (possibleMoves.length == 0) break
 
-
+        // make the move
         path.push(possibleMoves.length - 1)
         makeMove(possibleMoves[possibleMoves.length - 1])
 
@@ -169,47 +103,115 @@ const game = () => {
     if (gamesPlayed < gamesNumber) {
         setTimeout(game, 1)
     } else {
-        console.log(path + '')
+        //console.log(path + '')
     }
+}
+
+const findMoves = () => {
+
+    // reset possible moves array
+    possibleMoves = []
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+
+            if (posStr[i * cols + j] == '-') continue
+
+            // check for moves going right
+            if (j < cols - 2) {
+                if (posStr[i * cols + j] == '@' && posStr[i * cols + j + 1] == '@' && posStr[i * cols + j + 2] == 'O') {
+                    possibleMoves.push(`r${i}${j}`)
+                }
+            }
+
+            // check for moves going left
+            if (j > 2) {
+                if (posStr[i * cols + j] == '@' && posStr[i * cols + j - 1] == '@' && posStr[i * cols + j - 2] == 'O') {
+                    possibleMoves.push(`l${i}${j}`)
+                }
+            }
+
+            // check for moves going down
+            if (i < rows - 2) {
+                if (posStr[i * cols + j] == '@' && posStr[(i + 1) * cols + j] == '@' && posStr[(i + 2) * cols + j] == 'O') {
+                    possibleMoves.push(`d${i}${j}`)
+                }
+            }
+
+            // check for moves going up
+            if (i > 2) {
+                if (posStr[i * cols + j] == '@' && posStr[(i - 1) * cols + j] == '@' && posStr[(i - 2) * cols + j] == 'O') {
+                    possibleMoves.push(`u${i}${j}`)
+                }
+            }
+        }
+    }
+}
+
+const makeMove = (str) => {
+
+    // direction, x-value, y-value
+    let d = str[0]
+    let i = +str[1]
+    let j = +str[2]
+
+    let arr = posStr.split('')
+
+    switch (d) {
+        case 'r':
+            arr[i * cols + j] = 'O'
+            arr[i * cols + j + 1] = 'O'
+            arr[i * cols + j + 2] = '@'
+            break
+        case 'l':
+            arr[i * cols + j] = 'O'
+            arr[i * cols + j - 1] = 'O'
+            arr[i * cols + j - 2] = '@'
+            break
+        case 'd':
+            arr[i * cols + j] = 'O'
+            arr[(i + 1) * cols + j] = 'O'
+            arr[(i + 2) * cols + j] = '@'
+            break
+        case 'u':
+            arr[i * cols + j] = 'O'
+            arr[(i - 1) * cols + j] = 'O'
+            arr[(i - 2) * cols + j] = '@'
+            break
+    }
+
+    posStr = arr.join('')
 }
 
 const checkForWin = () => {
 
-    let posStr = posArr.join(',').split(',').join('')
-    let winStr = winningPosition.join(' ').split(' ').join('')
-    let posStrLeft = posArr.join(',').split(',')
     let pinsLeft = 0
-    for (let i = 0; i < posStrLeft.length; i++) {
-        if (posStrLeft[i] == '@') pinsLeft++
+    for (let i = 0; i < posStr.length; i++) {
+        if (posStr[i] == '@') pinsLeft++
     }
     if (fewestPins > pinsLeft) {
         fewestPins = pinsLeft
-        bestGame = fromPosArr(posArr)
-        console.log(printMatrix())
+        console.log(`Best game so far - ${fewestPins} pins left:\n\n${printMatrix()}`)
     }
 
-    //console.log(printMatrix())
-    //console.log(`Game #${gamesPlayed + 1}`)
-
     if (posStr == winStr) {
-        gamesPlayed = gamesNumber
         console.log(printMatrix())
         console.log('YOU WIN!')
-        console.log('Path: ' + path)
         console.log(`Game #${gamesPlayed + 1}`)
+        gamesPlayed = gamesNumber
     } else {
-        console.log('another loss')
-            //console.log(path + '')
-            //console.log(printMatrix())
+        //console.log('another loss')
+        console.log(path)
     }
 }
 
 const printMatrix = () => {
-    let str = ''
-    for (let i = 0; i < posArr.length; i++) {
-        str += posArr[i].join(' ')
-        str += '\n'
+    let arr = posStr.split('')
+    for (let i = 0; i < arr.length; i++) {
+        if (i % (rows + 1) == rows - 1) arr.splice(i + 1, 0, '\n')
     }
+    arr.unshift('')
+    let str = arr.join(' ')
     return str
 }
 
